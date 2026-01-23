@@ -376,23 +376,19 @@ async def delete_event(event_id: str, user: dict = Depends(get_admin_user)):
 # ============== PHOTOS ENDPOINTS ==============
 
 def add_watermark(image: Image.Image) -> Image.Image:
-    """Add watermark to image"""
+    """Add watermark to image (local fallback)"""
     from PIL import ImageDraw, ImageFont
     
     watermarked = image.copy()
     draw = ImageDraw.Draw(watermarked)
     
-    # Create semi-transparent watermark
     width, height = watermarked.size
-    
-    # Draw diagonal watermark text multiple times
-    text = "LUMINA © PREVIEW"
+    text = "CAROLINA DUARTE © PREVIEW"
     try:
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(30, width // 20))
     except:
         font = ImageFont.load_default()
     
-    # Draw watermark pattern
     for y in range(0, height, height // 4):
         for x in range(0, width, width // 3):
             draw.text((x, y), text, fill=(255, 255, 255, 80), font=font)
@@ -400,10 +396,18 @@ def add_watermark(image: Image.Image) -> Image.Image:
     return watermarked
 
 def create_thumbnail(image: Image.Image, size: tuple = (400, 400)) -> Image.Image:
-    """Create thumbnail maintaining aspect ratio"""
+    """Create thumbnail maintaining aspect ratio (local fallback)"""
     thumb = image.copy()
     thumb.thumbnail(size, Image.Resampling.LANCZOS)
     return thumb
+
+def get_cloudinary_url(public_id: str, transformation: str = None) -> str:
+    """Generate Cloudinary URL with optional transformation"""
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME")
+    base_url = f"https://res.cloudinary.com/{cloud_name}/image/upload"
+    if transformation:
+        return f"{base_url}/{transformation}/{public_id}"
+    return f"{base_url}/{public_id}"
 
 @api_router.post("/photos/upload")
 async def upload_photo(
@@ -427,56 +431,89 @@ async def upload_photo(
         logger.error(f"Error reading file: {e}")
         raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
     
-    # Process image
-    try:
-        image = Image.open(BytesIO(content))
-        # Handle different image modes
-        if image.mode == 'RGBA':
-            # Create white background for transparent images
-            background = Image.new('RGB', image.size, (255, 255, 255))
-            background.paste(image, mask=image.split()[3])
-            image = background
-        elif image.mode == 'P':
-            image = image.convert('RGB')
-        elif image.mode != 'RGB':
-            image = image.convert('RGB')
-    except Exception as e:
-        logger.error(f"Error processing image: {e}")
-        raise HTTPException(status_code=400, detail=f"Invalid image format: {str(e)}")
-    
     photo_id = f"photo_{uuid.uuid4().hex[:12]}"
     
-    # Save original
-    original_filename = f"{photo_id}_original.jpg"
-    original_path = UPLOADS_DIR / 'photos' / original_filename
-    image.save(str(original_path), 'JPEG', quality=95)
+    if CLOUDINARY_ENABLED:
+        # Upload to Cloudinary
+        try:
+            # Upload original image to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                content,
+                folder=f"carolina_duarte/events/{event_id}",
+                public_id=photo_id,
+                resource_type="image",
+                overwrite=True,
+                quality="auto:best"
+            )
+            
+            cloudinary_public_id = upload_result["public_id"]
+            cloudinary_url = upload_result["secure_url"]
+            width = upload_result.get("width", 0)
+            height = upload_result.get("height", 0)
+            
+            # Save to database with Cloudinary info
+            photo_doc = {
+                "photo_id": photo_id,
+                "event_id": event_id,
+                "filename": file.filename,
+                "storage_type": "cloudinary",
+                "cloudinary_public_id": cloudinary_public_id,
+                "cloudinary_url": cloudinary_url,
+                "price": price,
+                "width": width,
+                "height": height,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Cloudinary upload error: {e}")
+            raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+    else:
+        # Fallback to local storage
+        try:
+            image = Image.open(BytesIO(content))
+            if image.mode == 'RGBA':
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                background.paste(image, mask=image.split()[3])
+                image = background
+            elif image.mode != 'RGB':
+                image = image.convert('RGB')
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            raise HTTPException(status_code=400, detail=f"Invalid image format: {str(e)}")
+        
+        # Save original
+        original_filename = f"{photo_id}_original.jpg"
+        original_path = UPLOADS_DIR / 'photos' / original_filename
+        image.save(str(original_path), 'JPEG', quality=95)
+        
+        # Create and save watermarked
+        watermarked = add_watermark(image)
+        watermarked_filename = f"{photo_id}_watermarked.jpg"
+        watermarked_path = UPLOADS_DIR / 'watermarked' / watermarked_filename
+        watermarked.save(str(watermarked_path), 'JPEG', quality=85)
+        
+        # Create and save thumbnail
+        thumbnail = create_thumbnail(image)
+        thumbnail = add_watermark(thumbnail)
+        thumbnail_filename = f"{photo_id}_thumb.jpg"
+        thumbnail_path = UPLOADS_DIR / 'thumbnails' / thumbnail_filename
+        thumbnail.save(str(thumbnail_path), 'JPEG', quality=80)
+        
+        photo_doc = {
+            "photo_id": photo_id,
+            "event_id": event_id,
+            "filename": file.filename,
+            "storage_type": "local",
+            "original_path": str(original_path),
+            "watermarked_path": str(watermarked_path),
+            "thumbnail_path": str(thumbnail_path),
+            "price": price,
+            "width": image.width,
+            "height": image.height,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
     
-    # Create and save watermarked
-    watermarked = add_watermark(image)
-    watermarked_filename = f"{photo_id}_watermarked.jpg"
-    watermarked_path = UPLOADS_DIR / 'watermarked' / watermarked_filename
-    watermarked.save(str(watermarked_path), 'JPEG', quality=85)
-    
-    # Create and save thumbnail
-    thumbnail = create_thumbnail(image)
-    thumbnail = add_watermark(thumbnail)
-    thumbnail_filename = f"{photo_id}_thumb.jpg"
-    thumbnail_path = UPLOADS_DIR / 'thumbnails' / thumbnail_filename
-    thumbnail.save(str(thumbnail_path), 'JPEG', quality=80)
-    
-    # Save to database
-    photo_doc = {
-        "photo_id": photo_id,
-        "event_id": event_id,
-        "filename": file.filename,
-        "original_path": str(original_path),
-        "watermarked_path": str(watermarked_path),
-        "thumbnail_path": str(thumbnail_path),
-        "price": price,
-        "width": image.width,
-        "height": image.height,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
     await db.photos.insert_one(photo_doc)
     
     # Update event photo count and cover
@@ -497,19 +534,43 @@ async def get_event_photos(event_id: str, user: dict = Depends(get_current_user)
     
     result = []
     for photo in photos:
-        result.append({
-            "photo_id": photo["photo_id"],
-            "event_id": photo["event_id"],
-            "filename": photo["filename"],
-            "thumbnail_url": f"/api/photos/file/{photo['photo_id']}/thumbnail",
-            "watermarked_url": f"/api/photos/file/{photo['photo_id']}/watermarked",
-            "original_url": f"/api/photos/file/{photo['photo_id']}/original" if photo["photo_id"] in purchased_ids else None,
-            "price": photo["price"],
-            "is_purchased": photo["photo_id"] in purchased_ids,
-            "width": photo.get("width"),
-            "height": photo.get("height"),
-            "created_at": photo["created_at"]
-        })
+        is_purchased = photo["photo_id"] in purchased_ids
+        
+        if photo.get("storage_type") == "cloudinary":
+            public_id = photo["cloudinary_public_id"]
+            # Cloudinary transformations for watermark and sizes
+            # Watermark: overlay text
+            watermark_transform = "c_fill,w_800,q_auto/l_text:Arial_40_bold:CAROLINA%20DUARTE%20©%20PREVIEW,o_30,co_white,g_center/fl_layer_apply,fl_tiled"
+            thumbnail_transform = "c_fill,w_400,h_400,q_auto/l_text:Arial_20_bold:©,o_40,co_white,g_center"
+            
+            result.append({
+                "photo_id": photo["photo_id"],
+                "event_id": photo["event_id"],
+                "filename": photo["filename"],
+                "thumbnail_url": get_cloudinary_url(public_id, thumbnail_transform),
+                "watermarked_url": get_cloudinary_url(public_id, watermark_transform),
+                "original_url": get_cloudinary_url(public_id, "q_auto:best") if is_purchased else None,
+                "price": photo["price"],
+                "is_purchased": is_purchased,
+                "width": photo.get("width"),
+                "height": photo.get("height"),
+                "created_at": photo["created_at"]
+            })
+        else:
+            # Local storage fallback
+            result.append({
+                "photo_id": photo["photo_id"],
+                "event_id": photo["event_id"],
+                "filename": photo["filename"],
+                "thumbnail_url": f"/api/photos/file/{photo['photo_id']}/thumbnail",
+                "watermarked_url": f"/api/photos/file/{photo['photo_id']}/watermarked",
+                "original_url": f"/api/photos/file/{photo['photo_id']}/original" if is_purchased else None,
+                "price": photo["price"],
+                "is_purchased": is_purchased,
+                "width": photo.get("width"),
+                "height": photo.get("height"),
+                "created_at": photo["created_at"]
+            })
     
     return result
 
@@ -519,8 +580,38 @@ async def get_photo_file(photo_id: str, resolution: str, request: Request):
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
     
+    # Handle Cloudinary storage
+    if photo.get("storage_type") == "cloudinary":
+        public_id = photo["cloudinary_public_id"]
+        
+        if resolution == "original":
+            # Check if user has purchased
+            try:
+                user = await get_current_user(request)
+                purchase = await db.purchases.find_one({
+                    "photo_id": photo_id,
+                    "user_id": user["user_id"]
+                })
+                if not purchase:
+                    raise HTTPException(status_code=403, detail="Photo not purchased")
+                url = get_cloudinary_url(public_id, "q_auto:best")
+            except HTTPException as e:
+                if e.status_code == 401:
+                    raise HTTPException(status_code=403, detail="Login required to download")
+                raise
+        elif resolution == "watermarked":
+            watermark_transform = "c_fill,w_1200,q_auto/l_text:Arial_50_bold:CAROLINA%20DUARTE%20©%20PREVIEW,o_30,co_white,g_center/fl_layer_apply,fl_tiled"
+            url = get_cloudinary_url(public_id, watermark_transform)
+        elif resolution == "thumbnail":
+            thumbnail_transform = "c_fill,w_400,h_400,q_auto/l_text:Arial_20_bold:©,o_40,co_white,g_center"
+            url = get_cloudinary_url(public_id, thumbnail_transform)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid resolution")
+        
+        return RedirectResponse(url=url, status_code=302)
+    
+    # Handle local storage
     if resolution == "original":
-        # Check if user has purchased
         try:
             user = await get_current_user(request)
             purchase = await db.purchases.find_one({
