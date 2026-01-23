@@ -29,9 +29,9 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <Camera className="w-6 h-6 text-gold transition-transform group-hover:scale-110" />
-            <span className="font-serif text-xl font-semibold tracking-wide">LUMINA</span>
+          <Link to="/" className="flex items-center gap-3 group">
+            <span className="font-serif text-xl tracking-wide">Carolina Duarte</span>
+            <span className="text-gold text-xs uppercase tracking-[0.3em] font-light">Photography</span>
           </Link>
 
           {/* Desktop Navigation */}
