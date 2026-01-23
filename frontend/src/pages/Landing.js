@@ -156,7 +156,7 @@ const Landing = () => {
             >
               <div className="relative h-full min-h-[400px]">
                 <img 
-                  src="https://images.unsplash.com/photo-1607076490946-26ada294e017?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxwaG90b2dyYXBoZXIlMjBob2xkaW5nJTIwY2FtZXJhJTIwc2lsaG91ZXR0ZXxlbnwwfHx8fDE3NjkxNzM2NTl8MA&ixlib=rb-4.1.0&q=85"
+                  src={getBackground('login')}
                   alt="Photographer"
                   className="w-full h-full object-cover"
                 />
@@ -168,14 +168,9 @@ const Landing = () => {
               </div>
             </motion.div>
             
-            {[
-              "https://images.pexels.com/photos/13446936/pexels-photo-13446936.jpeg",
-              "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=1000",
-              "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
-              "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800"
-            ].map((img, index) => (
+            {['gallery1', 'gallery2', 'gallery3', 'gallery4'].map((key, index) => (
               <motion.div
-                key={index}
+                key={key}
                 className="img-zoom"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -184,7 +179,7 @@ const Landing = () => {
               >
                 <div className="relative h-48">
                   <img 
-                    src={img}
+                    src={getBackground(key)}
                     alt={`Gallery ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
