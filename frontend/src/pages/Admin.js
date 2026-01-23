@@ -51,11 +51,11 @@ export const AdminLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-obsidian-paper border-r border-white/5 fixed left-0 top-0 bottom-0 z-40">
         <div className="p-6 border-b border-white/5">
-          <Link to="/" className="flex items-center gap-2">
-            <Camera className="w-6 h-6 text-gold" />
-            <span className="font-serif text-xl">LUMINA</span>
+          <Link to="/" className="flex flex-col gap-1">
+            <span className="font-serif text-lg">Carolina Duarte</span>
+            <span className="text-gold text-[10px] uppercase tracking-[0.25em] font-light">Photography</span>
           </Link>
-          <p className="text-white/40 text-sm mt-1">Painel Admin</p>
+          <p className="text-white/40 text-sm mt-2">Painel Admin</p>
         </div>
 
         <nav className="p-4">
