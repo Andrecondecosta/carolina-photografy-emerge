@@ -78,11 +78,12 @@ const Landing = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-serif text-4xl sm:text-5xl font-semibold mb-4">
+            <p className="text-gold text-sm uppercase tracking-[0.3em] mb-4">A sua experiência</p>
+            <h2 className="font-serif text-4xl sm:text-5xl font-normal mb-4">
               Como funciona
             </h2>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              A sua experiência personalizada em três passos simples
+            <p className="text-white/50 text-lg max-w-2xl mx-auto font-light">
+              Uma forma simples de encontrar e adquirir as suas fotografias
             </p>
           </motion.div>
 
@@ -91,32 +92,32 @@ const Landing = () => {
               {
                 icon: Search,
                 title: 'Encontre-se',
-                description: 'Use a nossa tecnologia de reconhecimento facial para encontrar automaticamente todas as suas fotos no evento.'
+                description: 'Utilize a tecnologia de reconhecimento facial para descobrir automaticamente todas as suas fotos no evento.'
               },
               {
                 icon: ShoppingBag,
-                title: 'Escolha',
-                description: 'Navegue pela galeria, selecione as suas fotos favoritas e adicione ao carrinho com um clique.'
+                title: 'Selecione',
+                description: 'Explore a galeria, escolha as imagens que mais lhe tocam e adicione-as ao carrinho.'
               },
               {
                 icon: Download,
                 title: 'Descarregue',
-                description: 'Após a compra, descarregue as suas fotos em alta resolução, sem marca de água.'
+                description: 'Após a compra, receba as suas fotos em alta resolução, prontas para eternizar.'
               }
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                className="group p-8 bg-obsidian border border-white/5 hover:border-gold/30 transition-colors"
+                className="group p-8 bg-obsidian border border-white/5 hover:border-gold/30 transition-all duration-300"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="w-12 h-12 mb-6 flex items-center justify-center border border-gold/30 group-hover:bg-gold group-hover:border-gold transition-colors">
-                  <feature.icon className="w-6 h-6 text-gold group-hover:text-black transition-colors" />
+                <div className="w-14 h-14 mb-6 flex items-center justify-center border border-gold/20 group-hover:bg-gold/10 transition-colors">
+                  <feature.icon className="w-6 h-6 text-gold" />
                 </div>
-                <h3 className="font-serif text-2xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-white/50">{feature.description}</p>
+                <h3 className="font-serif text-2xl font-normal mb-3">{feature.title}</h3>
+                <p className="text-white/40 font-light leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
