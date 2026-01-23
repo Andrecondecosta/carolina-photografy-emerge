@@ -153,6 +153,7 @@ export const Register = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, loginWithGoogle } = useAuth();
+  const { getBackground } = useSiteSettings();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
