@@ -191,9 +191,9 @@ export const Footer = () => {
     <footer className="bg-obsidian border-t border-white/5 py-12 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-gold" />
-            <span className="font-serif text-lg">LUMINA</span>
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <span className="font-serif text-lg">Carolina Duarte</span>
+            <span className="text-gold text-xs uppercase tracking-[0.3em] font-light">Photography</span>
           </div>
           <div className="flex items-center gap-8">
             <Link to="/events" className="text-sm text-white/40 hover:text-white transition-colors">
