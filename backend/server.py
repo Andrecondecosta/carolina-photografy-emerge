@@ -918,6 +918,147 @@ async def update_user_role(user_id: str, role: str, admin: dict = Depends(get_ad
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "Role updated"}
 
+# ============== SITE SETTINGS ==============
+
+# Default background images
+DEFAULT_BACKGROUNDS = {
+    "hero": "https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85",
+    "login": "https://images.unsplash.com/photo-1607076490946-26ada294e017?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxwaG90b2dyYXBoZXIlMjBob2xkaW5nJTIwY2FtZXJhJTIwc2lsaG91ZXR0ZXxlbnwwfHx8fDE3NjkxNzM2NTl8MA&ixlib=rb-4.1.0&q=85",
+    "register": "https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85",
+    "gallery1": "https://images.pexels.com/photos/13446936/pexels-photo-13446936.jpeg",
+    "gallery2": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=1000",
+    "gallery3": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
+    "gallery4": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800"
+}
+
+@api_router.get("/settings/backgrounds")
+async def get_backgrounds():
+    """Get all background images (public endpoint)"""
+    settings = await db.site_settings.find_one({"setting_type": "backgrounds"}, {"_id": 0})
+    if not settings:
+        return DEFAULT_BACKGROUNDS
+    
+    # Merge with defaults for any missing keys
+    backgrounds = {**DEFAULT_BACKGROUNDS, **settings.get("images", {})}
+    return backgrounds
+
+@api_router.put("/admin/settings/backgrounds")
+async def update_backgrounds(request: Request, user: dict = Depends(get_admin_user)):
+    """Update background image URLs"""
+    data = await request.json()
+    
+    # Get current settings
+    settings = await db.site_settings.find_one({"setting_type": "backgrounds"}, {"_id": 0})
+    current_images = settings.get("images", {}) if settings else {}
+    
+    # Update with new values
+    updated_images = {**current_images, **data}
+    
+    await db.site_settings.update_one(
+        {"setting_type": "backgrounds"},
+        {
+            "$set": {
+                "images": updated_images,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        },
+        upsert=True
+    )
+    
+    return {"message": "Backgrounds updated", "images": updated_images}
+
+@api_router.post("/admin/settings/backgrounds/upload")
+async def upload_background(
+    image_key: str = Form(...),
+    file: UploadFile = File(...),
+    user: dict = Depends(get_admin_user)
+):
+    """Upload a custom background image"""
+    valid_keys = ["hero", "login", "register", "gallery1", "gallery2", "gallery3", "gallery4"]
+    if image_key not in valid_keys:
+        raise HTTPException(status_code=400, detail=f"Invalid image key. Must be one of: {valid_keys}")
+    
+    # Read and process image
+    try:
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Empty file")
+        
+        image = Image.open(BytesIO(content))
+        if image.mode == 'RGBA':
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            background.paste(image, mask=image.split()[3])
+            image = background
+        elif image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Resize if too large (max 2000px width)
+        max_width = 2000
+        if image.width > max_width:
+            ratio = max_width / image.width
+            new_height = int(image.height * ratio)
+            image = image.resize((max_width, new_height), Image.Resampling.LANCZOS)
+        
+    except Exception as e:
+        logger.error(f"Error processing background image: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid image: {str(e)}")
+    
+    # Save image
+    bg_id = f"bg_{uuid.uuid4().hex[:12]}"
+    filename = f"{bg_id}_{image_key}.jpg"
+    filepath = UPLOADS_DIR / 'backgrounds' / filename
+    image.save(str(filepath), 'JPEG', quality=90)
+    
+    # Update settings with new image URL
+    image_url = f"/api/backgrounds/{filename}"
+    
+    settings = await db.site_settings.find_one({"setting_type": "backgrounds"}, {"_id": 0})
+    current_images = settings.get("images", {}) if settings else {}
+    current_images[image_key] = image_url
+    
+    await db.site_settings.update_one(
+        {"setting_type": "backgrounds"},
+        {
+            "$set": {
+                "images": current_images,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        },
+        upsert=True
+    )
+    
+    return {
+        "message": "Background uploaded",
+        "image_key": image_key,
+        "url": image_url
+    }
+
+@api_router.get("/backgrounds/{filename}")
+async def get_background_file(filename: str):
+    """Serve background image files"""
+    filepath = UPLOADS_DIR / 'backgrounds' / filename
+    if not filepath.exists():
+        raise HTTPException(status_code=404, detail="Background not found")
+    return FileResponse(str(filepath), media_type="image/jpeg")
+
+@api_router.delete("/admin/settings/backgrounds/{image_key}")
+async def reset_background(image_key: str, user: dict = Depends(get_admin_user)):
+    """Reset a background to default"""
+    if image_key not in DEFAULT_BACKGROUNDS:
+        raise HTTPException(status_code=400, detail="Invalid image key")
+    
+    settings = await db.site_settings.find_one({"setting_type": "backgrounds"}, {"_id": 0})
+    if settings and "images" in settings:
+        current_images = settings["images"]
+        if image_key in current_images:
+            del current_images[image_key]
+            await db.site_settings.update_one(
+                {"setting_type": "backgrounds"},
+                {"$set": {"images": current_images}}
+            )
+    
+    return {"message": f"Background '{image_key}' reset to default", "default_url": DEFAULT_BACKGROUNDS[image_key]}
+
 # ============== HEALTH CHECK ==============
 
 @api_router.get("/health")
