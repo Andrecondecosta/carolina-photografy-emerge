@@ -205,22 +205,23 @@ const Landing = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-serif text-4xl sm:text-5xl font-semibold mb-6">
-              Pronto para encontrar as suas fotos?
+            <p className="text-gold text-sm uppercase tracking-[0.3em] mb-4">Comece hoje</p>
+            <h2 className="font-serif text-4xl sm:text-5xl font-normal mb-6">
+              Pronta para reviver os seus momentos?
             </h2>
-            <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto">
-              Registe-se gratuitamente e comece a explorar os eventos. 
-              Use a nossa tecnologia de reconhecimento facial para encontrar todas as suas fotos.
+            <p className="text-white/40 text-lg mb-10 max-w-2xl mx-auto font-light">
+              Crie a sua conta gratuita e descubra as suas fotografias. 
+              Utilize o reconhecimento facial para encontrar todas as imagens onde aparece.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/register">
-                <Button className="btn-primary animate-pulse-gold">
-                  Criar conta gratuita
+                <Button className="btn-primary">
+                  Criar conta
                 </Button>
               </Link>
               <Link to="/events">
                 <Button className="btn-secondary">
-                  Explorar eventos
+                  Explorar galerias
                 </Button>
               </Link>
             </div>
