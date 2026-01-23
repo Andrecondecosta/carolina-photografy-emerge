@@ -58,12 +58,12 @@ export const Login = () => {
             Voltar ao início
           </Link>
 
-          <div className="flex items-center gap-3 mb-8">
-            <Camera className="w-8 h-8 text-gold" />
-            <span className="font-serif text-2xl">LUMINA</span>
+          <div className="flex flex-col gap-1 mb-8">
+            <span className="font-serif text-2xl">Carolina Duarte</span>
+            <span className="text-gold text-xs uppercase tracking-[0.3em] font-light">Photography</span>
           </div>
 
-          <h1 className="font-serif text-3xl font-semibold mb-2">Entrar</h1>
+          <h1 className="font-serif text-3xl font-normal mb-2">Entrar</h1>
           <p className="text-white/60 mb-8">Aceda à sua conta para ver as suas fotos</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
