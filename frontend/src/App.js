@@ -2,6 +2,7 @@ import React from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { SiteSettingsProvider } from "./contexts/SiteSettingsContext";
 import { Toaster } from "./components/ui/sonner";
 
 // Pages
@@ -13,6 +14,7 @@ import { Cart, CheckoutSuccess } from "./pages/Cart";
 import Purchases from "./pages/Purchases";
 import MyPhotos from "./pages/MyPhotos";
 import { AdminLayout, AdminDashboard, AdminEvents, AdminClients } from "./pages/Admin";
+import AdminCustomize from "./pages/AdminCustomize";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
