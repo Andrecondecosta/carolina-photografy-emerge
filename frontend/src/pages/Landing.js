@@ -2,10 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layout } from '../components/Layout';
+import { useSiteSettings } from '../contexts/SiteSettingsContext';
 import { Button } from '../components/ui/button';
 import { Camera, Search, ShoppingBag, Download, ArrowRight } from 'lucide-react';
 
 const Landing = () => {
+  const { getBackground } = useSiteSettings();
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -13,7 +16,7 @@ const Landing = () => {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85"
+            src={getBackground('hero')}
             alt="Wedding photography"
             className="w-full h-full object-cover opacity-40"
           />
