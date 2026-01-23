@@ -1,53 +1,135 @@
-import { useEffect } from "react";
+import React from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { Toaster } from "./components/ui/sonner";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Pages
+import Landing from "./pages/Landing";
+import Events from "./pages/Events";
+import EventGallery from "./pages/EventGallery";
+import { Login, Register, AuthCallback } from "./pages/Auth";
+import { Cart, CheckoutSuccess } from "./pages/Cart";
+import Purchases from "./pages/Purchases";
+import MyPhotos from "./pages/MyPhotos";
+import { AdminLayout, AdminDashboard, AdminEvents, AdminClients } from "./pages/Admin";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-obsidian flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const { isAdmin, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-obsidian flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+// Router with Auth Callback detection
+const AppRouter = () => {
+  const location = useLocation();
+
+  // Check for session_id in URL fragment BEFORE rendering other routes
+  // This handles OAuth callback synchronously to prevent race conditions
+  if (location.hash?.includes('session_id=')) {
+    return <AuthCallback />;
+  }
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/events" element={<Events />} />
+      <Route path="/events/:eventId" element={<EventGallery />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      {/* Protected Routes */}
+      <Route path="/cart" element={
+        <ProtectedRoute>
+          <Cart />
+        </ProtectedRoute>
+      } />
+      <Route path="/checkout/success" element={
+        <ProtectedRoute>
+          <CheckoutSuccess />
+        </ProtectedRoute>
+      } />
+      <Route path="/purchases" element={
+        <ProtectedRoute>
+          <Purchases />
+        </ProtectedRoute>
+      } />
+      <Route path="/my-photos" element={
+        <ProtectedRoute>
+          <MyPhotos />
+        </ProtectedRoute>
+      } />
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={
+        <AdminRoute>
+          <AdminLayout />
+        </AdminRoute>
+      }>
+        <Route index element={<AdminDashboard />} />
+        <Route path="events" element={<AdminEvents />} />
+        <Route path="clients" element={<AdminClients />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRouter />
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#121212',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#FAFAFA'
+            }
+          }}
+        />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
