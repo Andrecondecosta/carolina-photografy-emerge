@@ -14,15 +14,15 @@ export const useSiteSettings = () => {
   return context;
 };
 
-// Default backgrounds (fallback)
+// Default backgrounds (fallback) - Fine art wedding photography style
 const DEFAULT_BACKGROUNDS = {
-  hero: "https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85",
-  login: "https://images.unsplash.com/photo-1607076490946-26ada294e017?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxwaG90b2dyYXBoZXIlMjBob2xkaW5nJTIwY2FtZXJhJTIwc2lsaG91ZXR0ZXxlbnwwfHx8fDE3NjkxNzM2NTl8MA&ixlib=rb-4.1.0&q=85",
-  register: "https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85",
-  gallery1: "https://images.pexels.com/photos/13446936/pexels-photo-13446936.jpeg",
-  gallery2: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=1000",
-  gallery3: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800",
-  gallery4: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&q=80&w=800"
+  hero: "https://images.unsplash.com/photo-1768611264978-92918fa8e8c3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwyfHxmaW5lJTIwYXJ0JTIwd2VkZGluZyUyMHBob3RvZ3JhcGh5JTIwZ29sZGVuJTIwaG91ciUyMHJvbWFudGljJTIwY291cGxlfGVufDB8fHx8MTc2OTE3NzI1OHww&ixlib=rb-4.1.0&q=85",
+  login: "https://images.unsplash.com/photo-1763539818420-165e69b7489b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxyb21hbnRpYyUyMHBvcnRyYWl0JTIwd29tYW4lMjBzb2Z0JTIwbGlnaHQlMjBlZGl0b3JpYWx8ZW58MHx8fHwxNzY5MTc3MjY3fDA&ixlib=rb-4.1.0&q=85",
+  register: "https://images.unsplash.com/photo-1769050351773-925862f14c38?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwzfHxmaW5lJTIwYXJ0JTIwd2VkZGluZyUyMHBob3RvZ3JhcGh5JTIwZ29sZGVuJTIwaG91ciUyMHJvbWFudGljJTIwY291cGxlfGVufDB8fHx8MTc2OTE3NzI1OHww&ixlib=rb-4.1.0&q=85",
+  gallery1: "https://images.unsplash.com/photo-1589144044802-567f743dd649?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwxfHxmaW5lJTIwYXJ0JTIwd2VkZGluZyUyMHBob3RvZ3JhcGh5JTIwZ29sZGVuJTIwaG91ciUyMHJvbWFudGljJTIwY291cGxlfGVufDB8fHx8MTc2OTE3NzI1OHww&ixlib=rb-4.1.0&q=85",
+  gallery2: "https://images.unsplash.com/photo-1763539818703-309e93c5e394?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwyfHxyb21hbnRpYyUyMHBvcnRyYWl0JTIwd29tYW4lMjBzb2Z0JTIwbGlnaHQlMjBlZGl0b3JpYWx8ZW58MHx8fHwxNzY5MTc3MjY3fDA&ixlib=rb-4.1.0&q=85",
+  gallery3: "https://images.unsplash.com/photo-1768611261082-3aa003bd4d29?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHw0fHxmaW5lJTIwYXJ0JTIwd2VkZGluZyUyMHBob3RvZ3JhcGh5JTIwZ29sZGVuJTIwaG91ciUyMHJvbWFudGljJTIwY291cGxlfGVufDB8fHx8MTc2OTE3NzI1OHww&ixlib=rb-4.1.0&q=85",
+  gallery4: "https://images.pexels.com/photos/20743407/pexels-photo-20743407.jpeg"
 };
 
 export const SiteSettingsProvider = ({ children }) => {
