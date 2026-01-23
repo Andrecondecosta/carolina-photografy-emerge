@@ -1,0 +1,173 @@
+{
+  "identity": {
+    "name": "Lumina",
+    "persona": "The Curator",
+    "tone": "Elegant, Intimate, Professional, Trustworthy",
+    "aesthetic": "Dark Mode Luxury, Minimalist, Image-First"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Cormorant Garamond, serif",
+      "weights": ["400", "600", "700"],
+      "usage": "Main headings, hero titles, emotional statements"
+    },
+    "body": {
+      "font_family": "Manrope, sans-serif",
+      "weights": ["300", "400", "500", "600"],
+      "usage": "UI text, buttons, descriptions, data tables"
+    },
+    "mono": {
+      "font_family": "JetBrains Mono, monospace",
+      "usage": "Technical data, image metadata (ISO, Aperture)"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#0a0a0a",
+        "paper": "#121212",
+        "subtle": "#1E1E1E"
+      },
+      "text": {
+        "primary": "#FAFAFA",
+        "secondary": "#A1A1AA",
+        "muted": "#52525B"
+      },
+      "primary": {
+        "main": "#D4AF37",
+        "hover": "#B5952F",
+        "foreground": "#000000"
+      },
+      "accent": {
+        "blue": "#38BDF8",
+        "success": "#4ADE80",
+        "error": "#F87171"
+      },
+      "border": {
+        "default": "#27272A",
+        "active": "#52525B"
+      }
+    },
+    "gradients": {
+      "gold_shimmer": "linear-gradient(45deg, #D4AF37 0%, #FCD34D 50%, #D4AF37 100%)",
+      "dark_overlay": "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)"
+    }
+  },
+  "spacing": {
+    "scale": {
+      "xs": "0.25rem",
+      "sm": "0.5rem",
+      "md": "1rem",
+      "lg": "1.5rem",
+      "xl": "2rem",
+      "2xl": "3rem",
+      "3xl": "4rem",
+      "section": "6rem"
+    },
+    "container": {
+      "padding": "2rem",
+      "max_width": "1400px"
+    }
+  },
+  "layout_strategies": {
+    "landing_page": {
+      "grid_type": "Tetris Grid",
+      "description": "Asymmetric grid mixing large hero images with smaller detail shots. Use negative space to let images breathe.",
+      "rules": [
+        "Never center text unless it's a standalone quote.",
+        "Use parallax effects on large background images.",
+        "Overlay text on images must have a dark gradient scrim."
+      ]
+    },
+    "client_gallery": {
+      "grid_type": "Masonry",
+      "description": "Pinterest-style layout that respects original aspect ratios (portrait vs landscape).",
+      "rules": [
+        "No cropping of images in the grid.",
+        "Gap should be small (gap-2 or gap-4) to create a cohesive 'wall of memories'.",
+        "Lazy load images with a blur-up effect."
+      ]
+    },
+    "admin_dashboard": {
+      "grid_type": "High Density",
+      "description": "Functional, data-rich interface for managing thousands of photos.",
+      "rules": [
+        "Use tables for client lists.",
+        "Use grid for photo management.",
+        "Sidebar navigation for quick access to events/clients."
+      ]
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#D4AF37] text-black hover:bg-[#B5952F] rounded-none uppercase tracking-widest text-xs font-bold px-8 py-3 transition-all",
+      "secondary": "bg-transparent border border-white/20 text-white hover:bg-white hover:text-black rounded-none uppercase tracking-widest text-xs font-bold px-8 py-3 transition-all",
+      "ghost": "text-white/60 hover:text-white hover:bg-white/5 rounded-md"
+    },
+    "cards": {
+      "event": "group relative overflow-hidden bg-[#121212] border border-white/5 hover:border-[#D4AF37]/50 transition-all duration-500",
+      "pricing": "bg-[#121212] border border-white/10 p-8 flex flex-col gap-4 hover:transform hover:-translate-y-1 transition-transform"
+    },
+    "inputs": {
+      "default": "bg-[#0a0a0a] border-white/10 focus:border-[#D4AF37] text-white placeholder:text-white/20 rounded-none h-12"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-black/40 border-b border-white/5",
+    "noise_texture": "url('/noise.png') opacity-5 fixed inset-0 pointer-events-none z-50",
+    "shadows": {
+      "glow": "0 0 20px rgba(212, 175, 55, 0.15)",
+      "deep": "0 20px 40px rgba(0,0,0,0.5)"
+    }
+  },
+  "motion": {
+    "page_transition": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: 'easeOut' }}",
+    "hover_lift": "hover:-translate-y-1 transition-transform duration-300",
+    "image_reveal": "initial={{ scale: 1.1, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.8 }}"
+  },
+  "image_urls": {
+    "hero": {
+      "wedding_couple": "https://images.unsplash.com/photo-1673195577797-d86fd842ade8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwY291cGxlJTIwYXJ0aXN0aWMlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzY5MTczNjU0fDA&ixlib=rb-4.1.0&q=85",
+      "photographer_silhouette": "https://images.unsplash.com/photo-1607076490946-26ada294e017?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxwaG90b2dyYXBoZXIlMjBob2xkaW5nJTIwY2FtZXJhJTIwc2lsaG91ZXR0ZXxlbnwwfHx8fDE3NjkxNzM2NTl8MA&ixlib=rb-4.1.0&q=85"
+    },
+    "placeholders": {
+      "event_crowd": "https://images.pexels.com/photos/13446936/pexels-photo-13446936.jpeg",
+      "portrait": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=1000"
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement Dark Mode by default. Add 'dark' class to html/body.",
+      "Use 'Cormorant Garamond' for all H1-H3 headings.",
+      "Use 'Manrope' for body text.",
+      "Ensure all images have a lazy-loading strategy.",
+      "Use Shadcn UI components but override styles to match the 'Dark Luxury' aesthetic defined in 'components' section.",
+      "For the Client Gallery, implement a Masonry layout (use 'react-responsive-masonry' or CSS columns)."
+    ],
+    "pages": {
+      "landing": "Focus on large, immersive imagery. Use the 'Tetris Grid' layout.",
+      "gallery": "Minimalist interface. Hide UI elements until hover. Focus purely on the photos.",
+      "admin": "Dense, functional. Use tables with sticky headers."
+    }
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Examine existing components to understand the project's component patterns before creating new ones",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use sonner for toasts. Sonner component are located in /app/src/components/ui/sonner.tsx"
+  ]
+}
