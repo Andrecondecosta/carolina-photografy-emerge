@@ -47,10 +47,11 @@ Criar um site para um fotógrafo onde cada cliente tenha a sua página particula
 - Cart management
 - Stripe checkout integration
 - Admin statistics and client management
+- **Site customization (background images management)**
 
 ### Frontend Pages
-- Landing page with hero section
-- Login/Register pages (Email + Google OAuth)
+- Landing page with hero section (dynamic backgrounds)
+- Login/Register pages (dynamic backgrounds)
 - Events listing page
 - Event gallery with masonry layout
 - Face search modal
@@ -61,6 +62,7 @@ Criar um site para um fotógrafo onde cada cliente tenha a sua página particula
 - Admin dashboard
 - Admin events management
 - Admin clients list
+- **Admin customization page (background images)**
 
 ### Key Features
 1. **Watermarking**: All uploaded photos get automatic "LUMINA © PREVIEW" watermark
