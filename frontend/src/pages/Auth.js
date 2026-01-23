@@ -180,13 +180,13 @@ export const Register = () => {
             Voltar ao início
           </Link>
 
-          <div className="flex items-center gap-3 mb-8">
-            <Camera className="w-8 h-8 text-gold" />
-            <span className="font-serif text-2xl">LUMINA</span>
+          <div className="flex flex-col gap-1 mb-8">
+            <span className="font-serif text-2xl">Carolina Duarte</span>
+            <span className="text-gold text-xs uppercase tracking-[0.3em] font-light">Photography</span>
           </div>
 
-          <h1 className="font-serif text-3xl font-semibold mb-2">Criar conta</h1>
-          <p className="text-white/60 mb-8">Registe-se para aceder às suas fotos</p>
+          <h1 className="font-serif text-3xl font-normal mb-2">Criar conta</h1>
+          <p className="text-white/50 mb-8 font-light">Registe-se para aceder às suas fotos</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
