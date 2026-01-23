@@ -17,32 +17,33 @@ const Landing = () => {
         <div className="absolute inset-0 z-0">
           <img 
             src={getBackground('hero')}
-            alt="Wedding photography"
-            className="w-full h-full object-cover opacity-40"
+            alt="Fine art photography"
+            className="w-full h-full object-cover opacity-50"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-obsidian/60 via-obsidian/40 to-obsidian" />
+          <div className="absolute inset-0 bg-gradient-to-b from-obsidian/50 via-obsidian/30 to-obsidian" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-left">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-semibold leading-tight mb-6">
-              Momentos eternos,
+            <p className="text-gold text-sm uppercase tracking-[0.4em] mb-6">Fine Art Photography</p>
+            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-normal leading-tight mb-6">
+              Histórias contadas
               <br />
-              <span className="gold-text">memórias suas</span>
+              <span className="italic">através da luz</span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/60 max-w-xl mb-10 font-light">
-              Encontre-se nas fotografias do seu evento especial. 
-              A nossa tecnologia de reconhecimento facial encontra automaticamente as suas melhores fotos.
+            <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto mb-10 font-light">
+              Capturo momentos autênticos e emoções genuínas. 
+              Cada imagem é uma memória eternizada com um toque artístico e cinematográfico.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               <Link to="/events">
                 <Button className="btn-primary flex items-center gap-2">
-                  Ver Eventos
+                  Ver Galerias
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -61,7 +62,7 @@ const Landing = () => {
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <div className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center pt-2">
+          <div className="w-6 h-10 border border-white/20 rounded-full flex justify-center pt-2">
             <div className="w-1 h-3 bg-gold rounded-full" />
           </div>
         </motion.div>
