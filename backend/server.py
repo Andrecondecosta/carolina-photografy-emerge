@@ -38,6 +38,7 @@ UPLOADS_DIR.mkdir(exist_ok=True)
 (UPLOADS_DIR / 'photos').mkdir(exist_ok=True)
 (UPLOADS_DIR / 'watermarked').mkdir(exist_ok=True)
 (UPLOADS_DIR / 'thumbnails').mkdir(exist_ok=True)
+(UPLOADS_DIR / 'backgrounds').mkdir(exist_ok=True)
 
 # Create the main app without a prefix
 app = FastAPI()
