@@ -207,7 +207,7 @@ export const Footer = () => {
             </a>
           </div>
           <p className="text-sm text-white/40">
-            © {new Date().getFullYear()} Lumina Photography
+            © {new Date().getFullYear()} Carolina Duarte Photography
           </p>
         </div>
       </div>
