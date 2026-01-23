@@ -9,19 +9,23 @@ module.exports = {
     extend: {
       fontFamily: {
         serif: ['Cormorant Garamond', 'serif'],
-        sans: ['Manrope', 'sans-serif'],
+        sans: ['Josefin Sans', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
         gold: {
-          DEFAULT: '#D4AF37',
-          hover: '#B5952F',
-          light: '#FCD34D',
+          DEFAULT: '#C4A484',
+          hover: '#A88B6C',
+          light: '#DBC4A9',
         },
         obsidian: {
-          DEFAULT: '#0a0a0a',
-          paper: '#121212',
-          subtle: '#1E1E1E',
+          DEFAULT: '#12100e',
+          paper: '#1a1714',
+          subtle: '#252220',
+        },
+        warm: {
+          cream: '#F5F0EB',
+          beige: '#E8DFD5',
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
