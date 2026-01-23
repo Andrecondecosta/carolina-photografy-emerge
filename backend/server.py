@@ -772,11 +772,33 @@ async def search_by_face(search_data: FaceSearchRequest, user: dict = Depends(ge
     for photo in photos:
         # Analyze each photo for the face
         try:
-            # Read watermarked image
-            async with aiofiles.open(photo["watermarked_path"], "rb") as f:
-                photo_content = await f.read()
-            
-            photo_base64 = base64.b64encode(photo_content).decode()
+            # Get photo content based on storage type
+            if photo.get("storage_type") == "cloudinary":
+                public_id = photo["cloudinary_public_id"]
+                # Get a smaller version for analysis
+                analysis_url = get_cloudinary_url(public_id, "c_fill,w_600,q_auto")
+                
+                async with httpx.AsyncClient() as http_client:
+                    response = await http_client.get(analysis_url)
+                    if response.status_code != 200:
+                        continue
+                    photo_content = response.content
+                
+                photo_base64 = base64.b64encode(photo_content).decode()
+                
+                # URLs for results
+                watermark_transform = "c_fill,w_800,q_auto/l_text:Arial_40_bold:CAROLINA%20DUARTE%20©%20PREVIEW,o_30,co_white,g_center/fl_layer_apply,fl_tiled"
+                thumbnail_transform = "c_fill,w_400,h_400,q_auto/l_text:Arial_20_bold:©,o_40,co_white,g_center"
+                thumbnail_url = get_cloudinary_url(public_id, thumbnail_transform)
+                watermarked_url = get_cloudinary_url(public_id, watermark_transform)
+            else:
+                # Local storage
+                async with aiofiles.open(photo["watermarked_path"], "rb") as f:
+                    photo_content = await f.read()
+                
+                photo_base64 = base64.b64encode(photo_content).decode()
+                thumbnail_url = f"/api/photos/file/{photo['photo_id']}/thumbnail"
+                watermarked_url = f"/api/photos/file/{photo['photo_id']}/watermarked"
             
             match_chat = LlmChat(
                 api_key=api_key,
@@ -807,8 +829,8 @@ async def search_by_face(search_data: FaceSearchRequest, user: dict = Depends(ge
                     matching_photos.append({
                         "photo_id": photo["photo_id"],
                         "event_id": photo["event_id"],
-                        "thumbnail_url": f"/api/photos/file/{photo['photo_id']}/thumbnail",
-                        "watermarked_url": f"/api/photos/file/{photo['photo_id']}/watermarked",
+                        "thumbnail_url": thumbnail_url,
+                        "watermarked_url": watermarked_url,
                         "price": photo["price"],
                         "confidence": confidence,
                         "created_at": photo["created_at"]
