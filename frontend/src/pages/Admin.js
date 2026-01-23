@@ -12,7 +12,7 @@ import {
   Calendar as CalendarIcon, 
   Camera, LayoutDashboard, Image, Users, 
   Plus, Upload, Trash2, Edit, ChevronRight,
-  TrendingUp, DollarSign, Eye, Loader2, X
+  TrendingUp, DollarSign, Eye, Loader2, X, Palette
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '../components/ui/skeleton';
@@ -43,6 +43,7 @@ export const AdminLayout = () => {
     { path: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { path: '/admin/events', label: 'Eventos', icon: CalendarIcon },
     { path: '/admin/clients', label: 'Clientes', icon: Users },
+    { path: '/admin/customize', label: 'Personalização', icon: Palette },
   ];
 
   return (
