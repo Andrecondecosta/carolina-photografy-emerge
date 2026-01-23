@@ -386,6 +386,7 @@ def create_thumbnail(image: Image.Image, size: tuple = (400, 400)) -> Image.Imag
 
 @api_router.post("/photos/upload")
 async def upload_photo(
+    request: Request,
     event_id: str = Form(...),
     price: float = Form(10.0),
     file: UploadFile = File(...),
@@ -396,16 +397,31 @@ async def upload_photo(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    # Read file
-    content = await file.read()
+    # Read file content
+    try:
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Empty file")
+    except Exception as e:
+        logger.error(f"Error reading file: {e}")
+        raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
     
     # Process image
     try:
         image = Image.open(BytesIO(content))
-        if image.mode in ('RGBA', 'P'):
+        # Handle different image modes
+        if image.mode == 'RGBA':
+            # Create white background for transparent images
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            background.paste(image, mask=image.split()[3])
+            image = background
+        elif image.mode == 'P':
+            image = image.convert('RGB')
+        elif image.mode != 'RGB':
             image = image.convert('RGB')
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid image: {str(e)}")
+        logger.error(f"Error processing image: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid image format: {str(e)}")
     
     photo_id = f"photo_{uuid.uuid4().hex[:12]}"
     
