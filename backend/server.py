@@ -654,6 +654,25 @@ async def get_photo(photo_id: str, request: Request):
     except:
         pass
     
+    if photo.get("storage_type") == "cloudinary":
+        public_id = photo["cloudinary_public_id"]
+        watermark_transform = "c_fill,w_800,q_auto/l_text:Arial_40_bold:CAROLINA%20DUARTE%20©%20PREVIEW,o_30,co_white,g_center/fl_layer_apply,fl_tiled"
+        thumbnail_transform = "c_fill,w_400,h_400,q_auto/l_text:Arial_20_bold:©,o_40,co_white,g_center"
+        
+        return {
+            "photo_id": photo["photo_id"],
+            "event_id": photo["event_id"],
+            "filename": photo["filename"],
+            "thumbnail_url": get_cloudinary_url(public_id, thumbnail_transform),
+            "watermarked_url": get_cloudinary_url(public_id, watermark_transform),
+            "original_url": get_cloudinary_url(public_id, "q_auto:best") if is_purchased else None,
+            "price": photo["price"],
+            "is_purchased": is_purchased,
+            "width": photo.get("width"),
+            "height": photo.get("height"),
+            "created_at": photo["created_at"]
+        }
+    
     return {
         "photo_id": photo["photo_id"],
         "event_id": photo["event_id"],
@@ -666,6 +685,51 @@ async def get_photo(photo_id: str, request: Request):
         "width": photo.get("width"),
         "height": photo.get("height"),
         "created_at": photo["created_at"]
+    }
+
+# ============== CLOUDINARY SIGNATURE ENDPOINT ==============
+
+@api_router.get("/cloudinary/signature")
+async def get_cloudinary_signature(
+    resource_type: str = Query("image", enum=["image", "video"]),
+    folder: str = Query("carolina_duarte/uploads"),
+    user: dict = Depends(get_admin_user)
+):
+    """Generate signed upload params for direct frontend upload to Cloudinary"""
+    if not CLOUDINARY_ENABLED:
+        raise HTTPException(status_code=400, detail="Cloudinary not configured")
+    
+    ALLOWED_FOLDERS = ("carolina_duarte/", "events/", "uploads/", "backgrounds/")
+    if not any(folder.startswith(f) for f in ALLOWED_FOLDERS):
+        raise HTTPException(status_code=400, detail="Invalid folder path")
+    
+    timestamp = int(time.time())
+    params = {
+        "timestamp": timestamp,
+        "folder": folder,
+        "resource_type": resource_type
+    }
+    
+    signature = cloudinary.utils.api_sign_request(
+        params,
+        os.environ.get("CLOUDINARY_API_SECRET")
+    )
+    
+    return {
+        "signature": signature,
+        "timestamp": timestamp,
+        "cloud_name": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+        "api_key": os.environ.get("CLOUDINARY_API_KEY"),
+        "folder": folder,
+        "resource_type": resource_type
+    }
+
+@api_router.get("/cloudinary/status")
+async def get_cloudinary_status():
+    """Check if Cloudinary is configured"""
+    return {
+        "enabled": CLOUDINARY_ENABLED,
+        "cloud_name": os.environ.get("CLOUDINARY_CLOUD_NAME") if CLOUDINARY_ENABLED else None
     }
 
 # ============== FACE SEARCH ==============
