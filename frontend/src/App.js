@@ -107,6 +107,7 @@ const AppRouter = () => {
         <Route index element={<AdminDashboard />} />
         <Route path="events" element={<AdminEvents />} />
         <Route path="clients" element={<AdminClients />} />
+        <Route path="customize" element={<AdminCustomize />} />
       </Route>
 
       {/* Fallback */}
