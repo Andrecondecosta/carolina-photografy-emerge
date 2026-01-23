@@ -134,21 +134,22 @@ const Landing = () => {
             viewport={{ once: true }}
           >
             <div>
-              <h2 className="font-serif text-4xl sm:text-5xl font-semibold mb-2">
-                Galeria de eventos
+              <p className="text-gold text-sm uppercase tracking-[0.3em] mb-3">Portfolio</p>
+              <h2 className="font-serif text-4xl sm:text-5xl font-normal mb-2">
+                Momentos capturados
               </h2>
-              <p className="text-white/60">Os momentos mais recentes capturados</p>
+              <p className="text-white/40 font-light">As histórias mais recentes contadas através das minhas lentes</p>
             </div>
             <Link to="/events">
               <Button className="btn-secondary">
-                Ver todos
+                Ver galerias
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
           </motion.div>
 
           {/* Tetris Grid Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <motion.div 
               className="col-span-2 row-span-2 img-zoom"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -159,13 +160,13 @@ const Landing = () => {
               <div className="relative h-full min-h-[400px]">
                 <img 
                   src={getBackground('login')}
-                  alt="Photographer"
+                  alt="Fine art photography"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 image-overlay" />
                 <div className="absolute bottom-6 left-6">
-                  <span className="text-gold text-sm uppercase tracking-widest">Em destaque</span>
-                  <h3 className="font-serif text-2xl mt-1">Sessão Profissional</h3>
+                  <span className="text-gold text-xs uppercase tracking-[0.3em]">Em destaque</span>
+                  <h3 className="font-serif text-2xl mt-1 font-light italic">Golden Hour</h3>
                 </div>
               </div>
             </motion.div>
