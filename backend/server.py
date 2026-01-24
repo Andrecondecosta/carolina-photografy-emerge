@@ -366,12 +366,118 @@ async def update_event(event_id: str, event_data: EventCreate, user: dict = Depe
 
 @api_router.delete("/events/{event_id}")
 async def delete_event(event_id: str, user: dict = Depends(get_admin_user)):
-    # Delete photos
+    # Get all photos for this event
+    photos = await db.photos.find({"event_id": event_id}, {"_id": 0}).to_list(1000)
+    
+    # Delete photos from Cloudinary
+    for photo in photos:
+        if photo.get("storage_type") == "cloudinary" and CLOUDINARY_ENABLED:
+            try:
+                cloudinary.uploader.destroy(photo["cloudinary_public_id"])
+            except Exception as e:
+                logger.error(f"Error deleting from Cloudinary: {e}")
+        elif photo.get("storage_type") == "local":
+            # Delete local files
+            for path_key in ["original_path", "watermarked_path", "thumbnail_path"]:
+                if photo.get(path_key) and os.path.exists(photo[path_key]):
+                    try:
+                        os.remove(photo[path_key])
+                    except Exception as e:
+                        logger.error(f"Error deleting local file: {e}")
+    
+    # Delete photos from database
     await db.photos.delete_many({"event_id": event_id})
+    
+    # Delete event
     result = await db.events.delete_one({"event_id": event_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Event not found")
     return {"message": "Event deleted"}
+
+@api_router.delete("/photos/{photo_id}")
+async def delete_photo(photo_id: str, user: dict = Depends(get_admin_user)):
+    """Delete a single photo from event and storage (Cloudinary or local)"""
+    photo = await db.photos.find_one({"photo_id": photo_id}, {"_id": 0})
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    
+    event_id = photo.get("event_id")
+    
+    # Delete from Cloudinary if applicable
+    if photo.get("storage_type") == "cloudinary" and CLOUDINARY_ENABLED:
+        try:
+            result = cloudinary.uploader.destroy(photo["cloudinary_public_id"])
+            logger.info(f"Cloudinary delete result for {photo_id}: {result}")
+        except Exception as e:
+            logger.error(f"Error deleting from Cloudinary: {e}")
+            # Continue with database deletion even if Cloudinary fails
+    elif photo.get("storage_type") == "local":
+        # Delete local files
+        for path_key in ["original_path", "watermarked_path", "thumbnail_path"]:
+            if photo.get(path_key) and os.path.exists(photo[path_key]):
+                try:
+                    os.remove(photo[path_key])
+                except Exception as e:
+                    logger.error(f"Error deleting local file {photo.get(path_key)}: {e}")
+    
+    # Delete from database
+    await db.photos.delete_one({"photo_id": photo_id})
+    
+    # Update event photo count
+    if event_id:
+        event = await db.events.find_one({"event_id": event_id})
+        if event:
+            new_count = max(0, event.get("photo_count", 1) - 1)
+            update_data = {"$set": {"photo_count": new_count}}
+            
+            # Update cover photo if this was the cover
+            if event.get("cover_photo") == photo_id:
+                # Find another photo to be the cover
+                another_photo = await db.photos.find_one({"event_id": event_id}, {"_id": 0})
+                if another_photo:
+                    update_data["$set"]["cover_photo"] = another_photo["photo_id"]
+                else:
+                    update_data["$set"]["cover_photo"] = None
+            
+            await db.events.update_one({"event_id": event_id}, update_data)
+    
+    return {"message": "Photo deleted successfully"}
+
+@api_router.get("/admin/events/{event_id}/photos")
+async def get_event_photos_admin(event_id: str, user: dict = Depends(get_admin_user)):
+    """Get all photos for an event (admin view with full details)"""
+    photos = await db.photos.find({"event_id": event_id}, {"_id": 0}).to_list(500)
+    
+    result = []
+    for photo in photos:
+        if photo.get("storage_type") == "cloudinary":
+            public_id = photo["cloudinary_public_id"]
+            thumbnail_transform = "c_fill,w_300,h_300,q_auto"
+            result.append({
+                "photo_id": photo["photo_id"],
+                "event_id": photo["event_id"],
+                "filename": photo["filename"],
+                "thumbnail_url": get_cloudinary_url(public_id, thumbnail_transform),
+                "storage_type": "cloudinary",
+                "price": photo["price"],
+                "width": photo.get("width"),
+                "height": photo.get("height"),
+                "created_at": photo["created_at"]
+            })
+        else:
+            result.append({
+                "photo_id": photo["photo_id"],
+                "event_id": photo["event_id"],
+                "filename": photo["filename"],
+                "thumbnail_url": f"/api/photos/file/{photo['photo_id']}/thumbnail",
+                "storage_type": "local",
+                "price": photo["price"],
+                "width": photo.get("width"),
+                "height": photo.get("height"),
+                "created_at": photo["created_at"]
+            })
+    
+    return result
 
 # ============== PHOTOS ENDPOINTS ==============
 
