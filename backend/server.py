@@ -1357,31 +1357,38 @@ async def shutdown_db_client():
 # Create initial admin user on startup
 @app.on_event("startup")
 async def create_initial_admin():
-    # Se quiseres desligar criação automática (boa prática depois de já ter admin)
+    # Se quiseres desligar tudo (boa prática depois), usa DISABLE_AUTO_ADMIN=true
     if os.environ.get("DISABLE_AUTO_ADMIN", "false").lower() == "true":
-        logger.info("Auto admin creation disabled.")
-        return
-
-    admin = await db.users.find_one({"role": "admin"})
-    if admin:
+        logger.info("Auto admin sync disabled.")
         return
 
     email = os.environ.get("INITIAL_ADMIN_EMAIL")
     password = os.environ.get("INITIAL_ADMIN_PASSWORD")
 
+    # Sem env no Render = não faz nada
     if not email or not password:
-        logger.warning("INITIAL_ADMIN_EMAIL/PASSWORD not set. Skipping admin creation.")
+        logger.warning("INITIAL_ADMIN_EMAIL/PASSWORD not set. Skipping admin sync.")
         return
 
-    admin_doc = {
-        "user_id": f"user_{uuid.uuid4().hex[:12]}",
+    admin = await db.users.find_one({"role": "admin"})
+
+    doc = {
         "email": email,
         "name": "Admin",
         "password": hash_password(password),
         "role": "admin",
-        "picture": None,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
 
-    await db.users.insert_one(admin_doc)
-    logger.info(f"Created initial admin user: {email}")
+    if admin:
+        # ✅ Atualiza SEMPRE para bater certo com as env do Render
+        await db.users.update_one({"user_id": admin["user_id"]}, {"$set": doc})
+        logger.info(f"Synced admin user from env: {email}")
+    else:
+        doc.update({
+            "user_id": f"user_{uuid.uuid4().hex[:12]}",
+            "picture": None,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        await db.users.insert_one(doc)
+        logger.info(f"Created admin user from env: {email}")
