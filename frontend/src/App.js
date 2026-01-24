@@ -15,6 +15,7 @@ import Purchases from "./pages/Purchases";
 import MyPhotos from "./pages/MyPhotos";
 import { AdminLayout, AdminDashboard, AdminEvents, AdminClients } from "./pages/Admin";
 import AdminCustomize from "./pages/AdminCustomize";
+import AdminEventPhotos from "./pages/AdminEventPhotos";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
