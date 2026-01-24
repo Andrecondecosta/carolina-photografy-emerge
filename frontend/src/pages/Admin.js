@@ -403,6 +403,18 @@ export const AdminEvents = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* Manage Photos */}
+                  <Link to={`/admin/events/${event.event_id}/photos`}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="text-white/60 hover:text-gold"
+                      title="Gerir fotos"
+                    >
+                      <Image className="w-5 h-5" />
+                    </Button>
+                  </Link>
+
                   {/* Upload Photos */}
                   <div className="relative">
                     <input
@@ -418,6 +430,7 @@ export const AdminEvents = () => {
                       size="icon"
                       disabled={uploading[event.event_id]}
                       className="text-white/60 hover:text-gold"
+                      title="Carregar fotos"
                     >
                       {uploading[event.event_id] ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -433,6 +446,7 @@ export const AdminEvents = () => {
                     size="icon"
                     onClick={() => openEditDialog(event)}
                     className="text-white/60 hover:text-white"
+                    title="Editar evento"
                   >
                     <Edit className="w-5 h-5" />
                   </Button>
@@ -443,13 +457,14 @@ export const AdminEvents = () => {
                     size="icon"
                     onClick={() => handleDeleteEvent(event.event_id)}
                     className="text-white/60 hover:text-red-400"
+                    title="Eliminar evento"
                   >
                     <Trash2 className="w-5 h-5" />
                   </Button>
 
                   {/* View */}
                   <Link to={`/events/${event.event_id}`}>
-                    <Button variant="ghost" size="icon" className="text-white/60 hover:text-gold">
+                    <Button variant="ghost" size="icon" className="text-white/60 hover:text-gold" title="Ver galeria">
                       <Eye className="w-5 h-5" />
                     </Button>
                   </Link>
