@@ -123,6 +123,6 @@ websockets==15.0.1
 yarl==1.22.0
 zipp==3.23.0
 numpy==1.26.4
+opencv-python-headless==4.10.0.84
 onnxruntime==1.23.2
-opencv-python-headless==4.13.0.90
 insightface==0.7.3
