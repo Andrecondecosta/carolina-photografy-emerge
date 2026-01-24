@@ -369,7 +369,7 @@ async def update_event(event_id: str, event_data: EventCreate, user: dict = Depe
 async def delete_event(event_id: str, user: dict = Depends(get_admin_user)):
     # Get all photos for this event
     photos = await db.photos.find({"event_id": event_id}, {"_id": 0}).to_list(1000)
-    
+
     # Delete photos from Cloudinary
     for photo in photos:
         if photo.get("storage_type") == "cloudinary" and CLOUDINARY_ENABLED:
@@ -385,10 +385,10 @@ async def delete_event(event_id: str, user: dict = Depends(get_admin_user)):
                         os.remove(photo[path_key])
                     except Exception as e:
                         logger.error(f"Error deleting local file: {e}")
-    
+
     # Delete photos from database
     await db.photos.delete_many({"event_id": event_id})
-    
+
     # Delete event
     result = await db.events.delete_one({"event_id": event_id})
     if result.deleted_count == 0:
@@ -401,9 +401,9 @@ async def delete_photo(photo_id: str, user: dict = Depends(get_admin_user)):
     photo = await db.photos.find_one({"photo_id": photo_id}, {"_id": 0})
     if not photo:
         raise HTTPException(status_code=404, detail="Photo not found")
-    
+
     event_id = photo.get("event_id")
-    
+
     # Delete from Cloudinary if applicable
     if photo.get("storage_type") == "cloudinary" and CLOUDINARY_ENABLED:
         try:
@@ -420,17 +420,17 @@ async def delete_photo(photo_id: str, user: dict = Depends(get_admin_user)):
                     os.remove(photo[path_key])
                 except Exception as e:
                     logger.error(f"Error deleting local file {photo.get(path_key)}: {e}")
-    
+
     # Delete from database
     await db.photos.delete_one({"photo_id": photo_id})
-    
+
     # Update event photo count
     if event_id:
         event = await db.events.find_one({"event_id": event_id})
         if event:
             new_count = max(0, event.get("photo_count", 1) - 1)
             update_data = {"$set": {"photo_count": new_count}}
-            
+
             # Update cover photo if this was the cover
             if event.get("cover_photo") == photo_id:
                 # Find another photo to be the cover
@@ -439,16 +439,16 @@ async def delete_photo(photo_id: str, user: dict = Depends(get_admin_user)):
                     update_data["$set"]["cover_photo"] = another_photo["photo_id"]
                 else:
                     update_data["$set"]["cover_photo"] = None
-            
+
             await db.events.update_one({"event_id": event_id}, update_data)
-    
+
     return {"message": "Photo deleted successfully"}
 
 @api_router.get("/admin/events/{event_id}/photos")
 async def get_event_photos_admin(event_id: str, user: dict = Depends(get_admin_user)):
     """Get all photos for an event (admin view with full details)"""
     photos = await db.photos.find({"event_id": event_id}, {"_id": 0}).to_list(500)
-    
+
     result = []
     for photo in photos:
         if photo.get("storage_type") == "cloudinary":
@@ -477,7 +477,7 @@ async def get_event_photos_admin(event_id: str, user: dict = Depends(get_admin_u
                 "height": photo.get("height"),
                 "created_at": photo["created_at"]
             })
-    
+
     return result
 
 # ============== PHOTOS ENDPOINTS ==============
@@ -1357,16 +1357,31 @@ async def shutdown_db_client():
 # Create initial admin user on startup
 @app.on_event("startup")
 async def create_initial_admin():
+    # Se quiseres desligar criação automática (boa prática depois de já ter admin)
+    if os.environ.get("DISABLE_AUTO_ADMIN", "false").lower() == "true":
+        logger.info("Auto admin creation disabled.")
+        return
+
     admin = await db.users.find_one({"role": "admin"})
-    if not admin:
-        admin_doc = {
-            "user_id": f"user_{uuid.uuid4().hex[:12]}",
-            "email": "admin@lumina.com",
-            "name": "Admin",
-            "password": hash_password("admin123"),
-            "role": "admin",
-            "picture": None,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        await db.users.insert_one(admin_doc)
-        logger.info("Created initial admin user: admin@lumina.com / admin123")
+    if admin:
+        return
+
+    email = os.environ.get("INITIAL_ADMIN_EMAIL")
+    password = os.environ.get("INITIAL_ADMIN_PASSWORD")
+
+    if not email or not password:
+        logger.warning("INITIAL_ADMIN_EMAIL/PASSWORD not set. Skipping admin creation.")
+        return
+
+    admin_doc = {
+        "user_id": f"user_{uuid.uuid4().hex[:12]}",
+        "email": email,
+        "name": "Admin",
+        "password": hash_password(password),
+        "role": "admin",
+        "picture": None,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    await db.users.insert_one(admin_doc)
+    logger.info(f"Created initial admin user: {email}")
