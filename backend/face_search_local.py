@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
+import os
 import numpy as np
 import cv2
 from insightface.app import FaceAnalysis
@@ -27,8 +28,11 @@ _face_app: FaceAnalysis | None = None
 def get_face_app() -> FaceAnalysis:
     global _face_app
     if _face_app is None:
-        _face_app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
-        _face_app.prepare(ctx_id=0, det_size=(640, 640))
+        model_name = os.getenv("INSIGHTFACE_MODEL", "buffalo_s")  # << troca aqui
+        det = int(os.getenv("INSIGHTFACE_DET_SIZE", "320"))       # << menor = menos RAM
+
+        _face_app = FaceAnalysis(name=model_name, providers=["CPUExecutionProvider"])
+        _face_app.prepare(ctx_id=-1, det_size=(det, det))         # << CPU sempre
     return _face_app
 
 
